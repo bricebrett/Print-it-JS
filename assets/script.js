@@ -32,28 +32,75 @@ const updateBanner = (index) => {
     dots[index].classList.add('dot_selected');
 };
 
-if (arrowLeft && arrowRight) {
-    arrowLeft.addEventListener('click', () => {
-        currentSlide = (currentSlide > 0) ? currentSlide - 1 : slides.length - 1;
-        updateBanner(currentSlide);
-    });
-    
-    arrowRight.addEventListener('click', () => {
-        currentSlide = (currentSlide < slides.length - 1) ? currentSlide + 1 : 0;
-        updateBanner(currentSlide);
-    });
-} else {
-    console.error('Arrows not found');
+const nextSlide = () => {
+    if (currentSlide < slides.length - 1) {
+        currentSlide++;
+    } else {
+        currentSlide = 0;
+    }
+    updateBanner(currentSlide);
+};
+
+// Gestionnaire de clic pour la flèche gauche
+function handleArrowLeftClick() {
+    if (currentSlide > 0) {
+        currentSlide--;
+    } else {
+        currentSlide = slides.length - 1;
+    }
+    updateBanner(currentSlide);
 }
 
-dots.forEach((dot, index) => {
-    dot.addEventListener('click', () => {
+// Gestionnaire de clic pour la flèche droite
+function handleArrowRightClick() {
+    nextSlide();
+}
+
+// Gestionnaire de clic pour les points
+function handleDotClick(index) {
+    return () => {
         currentSlide = index;
         updateBanner(currentSlide);
         console.log(`Dot ${index + 1} clicked`);
+    };
+}
+
+// Gestionnaire de pression de touche
+function handleKeydown(event) {
+    if (event.key === "ArrowRight") {
+        nextSlide();
+        console.log("Flèche droite pressée !");
+    } else if (event.key === "ArrowLeft") {
+        if (currentSlide > 0) {
+            currentSlide--;
+        } else {
+            currentSlide = slides.length - 1;
+        }
+        updateBanner(currentSlide);
+    }
+}
+
+// Initialisation des événements
+function initEventListeners() {
+    if (arrowLeft && arrowRight) {
+        arrowLeft.addEventListener('click', handleArrowLeftClick);
+        arrowRight.addEventListener('click', handleArrowRightClick);
+    } else {
+        console.error('Arrows not found');
+    }
+
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', handleDotClick(index));
     });
-});
 
-updateBanner(currentSlide);
+    document.addEventListener("keydown", handleKeydown);
+}
 
+// Initialisation de l'intervalle pour le changement de slide automatique
+function initAutoSlide() {
+    setInterval(nextSlide, 3000);
+}
 
+// Appel des fonctions d'initialisation
+initEventListeners();
+initAutoSlide();
